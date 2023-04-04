@@ -187,8 +187,8 @@ public class TrainService {
             String[] route = train.getRoute().split(",");
 
             for (String val : route) {
-                if (train.getDepartureTime().compareTo(startTime) >= 0
-                        && train.getDepartureTime().compareTo(endTime) <= 0
+                if ((train.getDepartureTime().getHour() + 1) >= startTime.getHour() &&
+                        (train.getDepartureTime().getHour() + 1) <= endTime.getHour()
                         && station.name().equalsIgnoreCase(val)) {
                     list.add(train.getTrainId());
                 }
