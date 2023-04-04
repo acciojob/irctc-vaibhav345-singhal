@@ -62,7 +62,7 @@ public class TicketService {
             }
         }
 
-        if (a != -1 && b != -1 && b - a <= 0) {
+        if (a != -1 && b != -1 && b - a < 0) {
             throw new Exception("Invalid stations");
         }
 
@@ -84,11 +84,10 @@ public class TicketService {
         ticket.setTrain(train);
 
         List<Passenger> passengerList = new ArrayList<>();
-        List<Integer> ids = bookTicketEntryDto.getPassengerIds();
         for (Integer id : bookTicketEntryDto.getPassengerIds()) {
             passengerList.add(passengerRepository.findById(id).get());
-            ticket.setPassengersList(passengerList);
         }
+        ticket.setPassengersList(passengerList);
 
         int fare = bookTicketEntryDto.getNoOfSeats() * 300 * (b - a);
         ticket.setTotalFare(fare);
