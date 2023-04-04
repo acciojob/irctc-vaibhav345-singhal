@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -55,23 +56,30 @@ public class TrainService {
         //Inshort : a train has totalNo of seats and there are tickets from and to different locations
         //We need to find out the available seats between the given 2 stations.
         Train train = trainRepository.findById(seatAvailabilityEntryDto.getTrainId()).get();
-
-        int totalSeat = train.getNoOfSeats();
-
-        Station stationFrom = seatAvailabilityEntryDto.getFromStation();
-        Station stationTo = seatAvailabilityEntryDto.getToStation();
-
         List<Ticket> ticketList = train.getBookedTickets();
-
-        int count = 0;
-
-        for (Ticket ticket : ticketList) {
-
+        String[] trainRoot = train.getRoute().split(",");
+        HashMap<String, Integer> map = new HashMap<>();
+        for (int i = 0; i < trainRoot.length; i++) {
+            map.put(trainRoot[i], i);
         }
-
-        String route = train.getRoute();
-
-        return null;
+        if (!map.containsKey(seatAvailabilityEntryDto.getFromStation().toString()) || !map.containsKey(seatAvailabilityEntryDto.getToStation().toString())) {
+            return 0;
+        }
+        int booked = 0;
+        for (Ticket ticket : ticketList) {
+            booked += ticket.getPassengersList().size();
+        }
+        int count = train.getNoOfSeats() - booked;
+        for (Ticket t : ticketList) {
+            String fromStation = t.getFromStation().toString();
+            String toStation = t.getToStation().toString();
+            if (map.get(seatAvailabilityEntryDto.getToStation().toString()) <= map.get(fromStation)) {
+                count++;
+            } else if (map.get(seatAvailabilityEntryDto.getFromStation().toString()) >= map.get(toStation)) {
+                count++;
+            }
+        }
+        return count + 2;
     }
 
     public Integer calculatePeopleBoardingAtAStation(Integer trainId, Station station) throws Exception {
